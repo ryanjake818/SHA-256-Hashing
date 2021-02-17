@@ -1,0 +1,65 @@
+'''Hashing Files Assignment'''
+# Jake Ryan
+# 1. Ask the user which folder contains the files to be hashed
+# 2. Ask the user which folder do you want the hashes to be stored
+# 3. User proof your code
+#   a. User provides a valid folder to obtain files to hash
+#   b. User hash folder exists or if it does not exist, create the directory
+# 6. The hashes will be SHA-256
+# 7. SHA-256.CSV will be the name of the file storing the hashes
+# 8. Your script will be named lastname_firstname_hashme.py
+from os import listdir
+from os.path import isfile, join, basename
+import hashlib
+import os
+
+print('This is a SHA-256 Hashing Program (Assignment)')
+path = os.getcwd()
+print("The current working directory is %s" % path)
+folder = input('Which folder contains the files you would like to hash?: ')
+if not os.path.exists(folder):
+    print('Your folder does not exist. Please select a new folder.')
+    folder = input('New folder with files to hash: ')
+
+savefolder = input('Which folder do you want the hashes to be stored in?: ')
+if not os.path.exists(savefolder):
+    print('Your destination path or folder do not exist, a different one will need to be created.')
+    print('Give a new directory path: ')
+    path = input()
+    print('Give a new directory folder: ')
+    name = input()
+    savefolder = os.path.join(path, name)
+    try:
+        os.mkdir(savefolder)
+    except OSError:
+        print("Creation of the directory %s failed" % savefolder)
+    else:
+        print("Successfully created the directory %s " % savefolder)
+
+
+def all_files():
+    current_path = folder
+    return [join(current_path, f) for f in listdir(current_path) if isfile(join(current_path, f))]
+
+
+def get_hashes():
+    files = all_files()
+    hash_list = []
+    for every_file in files:
+        jakehash = hashlib.sha256()
+        with open(every_file, "rb") as f:
+            for item in iter(lambda: f.read(4096), b""):
+                jakehash.update(item)
+        hash_list.append('Filename: {}\tHash: {}\n'.format(basename(every_file), jakehash.hexdigest()))
+    return hash_list
+
+
+def write_hashes():
+    hashes = get_hashes()
+    with open(f'{savefolder}\SHA-256.csv', 'w') as f:
+        for sha256 in hashes:
+            f.write(sha256)
+
+
+if __name__ == '__main__':
+    write_hashes()
